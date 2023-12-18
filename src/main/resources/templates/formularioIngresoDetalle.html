@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Ingreso de Artículo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Estilos del encabezado */
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .logo {
+            max-width: 250px;
+        }
+        .menu {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 20px;
+        }
+        .menu a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+        .menu a:hover {
+            color: #cceeff;
+        }
+
+        /* Estilos del pie de página */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            text-align: center;
+            padding: 50px 0;
+        }
+        .social-links .nav-link {
+            color: white;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+<!-- Encabezado -->
+<header>
+    <div class="container d-flex justify-content-between align-items-center">
+        <img src="https://www.tecazuay.edu.ec/wp-content/uploads/2023/07/LOGO-RECTANGULAR_SIN-FONDO.png" alt="Logo de tu Aplicación" class="logo">
+        <div class="menu">
+            <a href="/" class="btn btn-primary">Volver al Índice</a>
+
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <!-- Formulario para crear un nuevo ingreso -->
+    <h2>Crear Nuevo Detalle de Ingreso</h2>
+
+    <form action="/ingresoDetalle/guardar" method="post">
+        <!-- Campos para ingresar los detalles del ingreso -->
+
+        <div class="mb-3">
+            <label for="ingresoArticuloId" class="form-label">Selecciona un Ingreso de Artículo:</label>
+            <select id="ingresoArticuloId" name="ingresoArticuloId" class="form-select">
+                <option value="">Selecciona un ingreso de artículo</option>
+                <option th:each="ingresoArticulo : ${ingresosArticulo}" th:value="${ingresoArticulo.idIngresoArticulo}" th:text="${ingresoArticulo.idIngresoArticulo}"></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="articuloId" class="form-label">Selecciona un Artículo:</label>
+            <select id="articuloId" name="articuloId" class="form-select">
+                <option value="">Selecciona un artículo</option>
+                <option th:each="articulo : ${articulos}" th:value="${articulo.idArticulo}" th:text="${articulo.idArticulo}"></option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="cantidadIngresada" class="form-label">Cantidad Ingresada:</label>
+            <input type="number" id="cantidadIngresada" name="cantidadIngresada" class="form-control" onchange="calcularCostoPromedio()">
+        </div>
+        <div class="mb-3">
+            <label for="precioComprado" class="form-label">Precio Comprado:</label>
+            <input type="number" id="precioComprado" name="precioComprado" class="form-control" onchange="calcularCostoPromedio()">
+        </div>
+        <div class="mb-3">
+            <label for="costoPromedio" class="form-label">Costo Promedio:</label>
+            <input type="text" id="costoPromedio" name="costoPromedio" class="form-control" readonly>
+        </div>
+
+        <button type="button" class="btn btn-primary" onclick="guardarDetalleIngreso()">Guardar</button>
+
+    </form>
+</div>
+
+
+
+
+<div class="container mt-5">
+    <h2>Listado de Detalles de Ingreso</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID Ingreso Detalle</th>
+            <th>ID Ingreso Artículo</th>
+            <th>ID Artículo</th>
+            <th>Cantidad Ingresada</th>
+            <th>Precio Comprado</th>
+            <th>Costo Promedio</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- Aquí iteramos sobre la lista de detalles de ingreso y mostramos los datos en la tabla -->
+        <tbody id="detalleIngresoTabla">
+        <tr th:each="ingresoDetalle : ${ingresos}">
+            <td th:text="${ingresoDetalle.idIngresoDetalle}"></td>
+            <td th:text="${ingresoDetalle.ingresoArticulo.idIngresoArticulo}"></td>
+            <td th:text="${ingresoDetalle.articulo.idArticulo}"></td>
+            <td th:text="${ingresoDetalle.cantidadIngresada}"></td>
+            <td th:text="${ingresoDetalle.precioComprado}"></td>
+            <td th:text="${ingresoDetalle.costoPromedio}"></td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<footer class="footer">
+    <div class="container-fluid text-center social-links">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+    </div>
+    <div class="container-fluid text-center">
+        <span>© 2023 Tu Empresa | Todos los derechos reservados</span>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+
+<script>
+    function calcularCostoPromedio() {
+        const cantidad = document.getElementById('cantidadIngresada').value;
+        const precio = document.getElementById('precioComprado').value;
+        const resultado = cantidad * precio;
+        document.getElementById('costoPromedio').value = resultado.toFixed(2);
+    }
+
+    function guardarDetalleIngreso() {
+        const ingresoArticuloId = document.getElementById('ingresoArticuloId').value;
+        const articuloId = document.getElementById('articuloId').value;
+        const cantidadIngresada = document.getElementById('cantidadIngresada').value;
+        const precioComprado = document.getElementById('precioComprado').value;
+        const costoPromedio = document.getElementById('costoPromedio').value;
+
+        fetch('/ingresos-detalle/guardar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ingresoArticuloId,
+                articuloId,
+                cantidadIngresada,
+                precioComprado,
+                costoPromedio,
+            }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Detalle de ingreso guardado exitosamente');
+                    location.reload();
+                } else {
+                    throw new Error('Error al guardar el detalle de ingreso');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Hubo un error al guardar el detalle de ingreso');
+            });
+    }
+</script>
+
+</body>
+</html>
